@@ -18,7 +18,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from config import (
+from ml.config import (
     ALL_FEATURES,
     CATEGORICAL_FEATURES,
     DEMOGRAPHIC_FEATURES,

@@ -19,8 +19,8 @@ import pandas as pd
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from config import MODELS_DIR, SHAP_TOP_N_FEATURES, ALL_FEATURES
-from explainer import explain_batch_from_df
+from ml.config import MODELS_DIR, SHAP_TOP_N_FEATURES, ALL_FEATURES
+from ml.explainer import explain_batch_from_df
 
 
 # ── Schema de entrada (equivalente al Pydantic model en FastAPI) ─────────────

@@ -11,7 +11,7 @@ import shap
 import numpy as np
 import pandas as pd
 
-from config import ALL_FEATURES, SHAP_TOP_N_FEATURES
+from ml.config import ALL_FEATURES, SHAP_TOP_N_FEATURES
 
 
 def build_explainer(model) -> shap.TreeExplainer:

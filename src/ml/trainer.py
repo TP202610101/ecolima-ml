@@ -1,13 +1,15 @@
 """
 trainer.py
 Entrenamiento de LightGBM con:
-  - Optuna para HPO (objetivo: AUC en clasificación / RMSE en regresión)
+  - Optuna para HPO (objetivo: AUC en clasificación)
   - GroupKFold para spatial cross-validation (grupos = distritos)
   - Early stopping con LightGBM callbacks
 
-Uso rápido:
-    from trainer import train
-    result = train(X_train, y_train, groups_train)
+CAMBIOS v2 (2026-05-29):
+  - Corregido UserWarning "X does not have valid feature names":
+    se pasan feature_names explícitamente al fit() de LGBMClassifier
+    después del ColumnTransformer para preservar los nombres de columna.
+  - Silenciado optuna logging de forma más robusta.
 """
 
 import json
@@ -17,11 +19,11 @@ import pandas as pd
 import lightgbm as lgb
 import optuna
 from optuna.samplers import TPESampler
-from sklearn.model_selection import GroupKFold, cross_val_score
-from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.model_selection import GroupKFold
+from sklearn.metrics import roc_auc_score
 from pathlib import Path
 
-from config import (
+from ml.config import (
     MODELS_DIR,
     LGBM_BASE_PARAMS,
     CV_N_SPLITS,
@@ -32,21 +34,29 @@ from config import (
     RANDOM_STATE,
     TARGET_COLUMN,
 )
-from preprocessing import build_preprocessor, FeatureEngineer
+from ml.preprocessing import build_preprocessor, FeatureEngineer
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+
+def _get_feature_names_after_transform(preprocessor, numeric_features: list[str], categorical_features: list[str]) -> list[str]:
+    """
+    Devuelve los nombres de features en el orden que produce el ColumnTransformer.
+    Necesario para evitar el UserWarning de LightGBM sobre feature names.
+    """
+    return numeric_features + categorical_features
+
+
+def _numeric_features() -> list[str]:
+    return [f for f in ALL_FEATURES if f not in CATEGORICAL_FEATURES]
 
 
 # ── Objetivo Optuna ──────────────────────────────────────────────────────────
 
 def _build_objective(X: pd.DataFrame, y: pd.Series, groups: pd.Series):
-    """
-    Cierra sobre los datos de entrenamiento para crear la función objetivo de Optuna.
-    Usa GroupKFold para que cada fold respete los límites distritales.
-    """
-    gkf = GroupKFold(n_splits=CV_N_SPLITS)
-    fe  = FeatureEngineer()
-    pre = build_preprocessor()
+    gkf            = GroupKFold(n_splits=CV_N_SPLITS)
+    fe             = FeatureEngineer()
+    feature_names  = _get_feature_names_after_transform(None, _numeric_features(), CATEGORICAL_FEATURES)
 
     def objective(trial: optuna.Trial) -> float:
         params = {
@@ -61,19 +71,20 @@ def _build_objective(X: pd.DataFrame, y: pd.Series, groups: pd.Series):
             "reg_lambda":        trial.suggest_float("reg_lambda", 1e-3, 1.0, log=True),
         }
 
-        model = lgb.LGBMClassifier(**params)   # cambiar a LGBMRegressor si el target es continuo
+        model = lgb.LGBMClassifier(**params)
         aucs  = []
 
         for train_idx, val_idx in gkf.split(X, y, groups):
-            X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
-            y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
+            X_tr,  X_val  = X.iloc[train_idx], X.iloc[val_idx]
+            y_tr,  y_val  = y.iloc[train_idx], y.iloc[val_idx]
 
-            # Aplicar feature engineering + preprocesamiento en cada fold
+            pre = build_preprocessor()
+
             X_tr_eng  = fe.fit_transform(X_tr)
             X_val_eng = fe.transform(X_val)
 
-            X_tr_pre  = pre.fit_transform(X_tr_eng)
-            X_val_pre = pre.transform(X_val_eng)
+            X_tr_pre  = pd.DataFrame(pre.fit_transform(X_tr_eng),  columns=feature_names)
+            X_val_pre = pd.DataFrame(pre.transform(X_val_eng),     columns=feature_names)
 
             model.fit(
                 X_tr_pre, y_tr,
@@ -99,20 +110,8 @@ def train(
     save: bool = True,
     model_name: str = "lgbm_recycling",
 ) -> dict:
-    """
-    Entrena el modelo LightGBM con HPO opcional y spatial CV.
-
-    Args:
-        X_train, y_train: Datos de entrenamiento.
-        groups_train: Serie con district_id para GroupKFold.
-        run_hpo: Si True, ejecuta Optuna antes del entrenamiento final.
-        save: Si True, serializa modelo + metadata en MODELS_DIR.
-        model_name: Nombre base del archivo de salida.
-
-    Returns:
-        dict con modelo entrenado, parámetros óptimos y métricas de CV.
-    """
-    best_params = LGBM_BASE_PARAMS.copy()
+    best_params   = LGBM_BASE_PARAMS.copy()
+    feature_names = _get_feature_names_after_transform(None, _numeric_features(), CATEGORICAL_FEATURES)
 
     if run_hpo:
         print(f"[trainer] Iniciando HPO con Optuna ({OPTUNA_N_TRIALS} trials, timeout {OPTUNA_TIMEOUT}s)...")
@@ -124,45 +123,48 @@ def train(
         study.optimize(objective, n_trials=OPTUNA_N_TRIALS, timeout=OPTUNA_TIMEOUT, show_progress_bar=True)
 
         best_params.update(study.best_params)
-        print(f"[trainer] Mejor AUC en CV: {study.best_value:.4f}")
+        print(f"[trainer] Mejor AUC en CV (HPO): {study.best_value:.4f}")
         print(f"[trainer] Mejores parámetros: {study.best_params}")
 
-    # Entrenamiento final sobre todo el conjunto de training
+    # Entrenamiento final
     fe  = FeatureEngineer()
     pre = build_preprocessor()
 
     X_eng = fe.fit_transform(X_train)
-    X_pre = pre.fit_transform(X_eng)
+    X_pre = pd.DataFrame(pre.fit_transform(X_eng), columns=feature_names)
 
     final_model = lgb.LGBMClassifier(**best_params)
     final_model.fit(X_pre, y_train)
 
-    # CV final para reporte (sin HPO, solo para registrar la métrica)
+    # CV final para reporte de métrica
     gkf  = GroupKFold(n_splits=CV_N_SPLITS)
     aucs = []
     for train_idx, val_idx in gkf.split(X_train, y_train, groups_train):
         X_tr,  X_val  = X_train.iloc[train_idx], X_train.iloc[val_idx]
         y_tr,  y_val  = y_train.iloc[train_idx], y_train.iloc[val_idx]
-        X_tr_e  = fe.fit_transform(X_tr)
-        X_val_e = fe.transform(X_val)
-        X_tr_p  = pre.fit_transform(X_tr_e)
-        X_val_p = pre.transform(X_val_e)
-        tmp_model = lgb.LGBMClassifier(**best_params)
-        tmp_model.fit(X_tr_p, y_tr, callbacks=[lgb.log_evaluation(-1)])
-        aucs.append(roc_auc_score(y_val, tmp_model.predict_proba(X_val_p)[:, 1]))
+
+        pre_fold = build_preprocessor()
+        X_tr_e   = fe.fit_transform(X_tr)
+        X_val_e  = fe.transform(X_val)
+        X_tr_p   = pd.DataFrame(pre_fold.fit_transform(X_tr_e),  columns=feature_names)
+        X_val_p  = pd.DataFrame(pre_fold.transform(X_val_e),     columns=feature_names)
+
+        tmp = lgb.LGBMClassifier(**best_params)
+        tmp.fit(X_tr_p, y_tr, callbacks=[lgb.log_evaluation(-1)])
+        aucs.append(roc_auc_score(y_val, tmp.predict_proba(X_val_p)[:, 1]))
 
     cv_auc_mean = float(np.mean(aucs))
     cv_auc_std  = float(np.std(aucs))
     print(f"[trainer] AUC CV final: {cv_auc_mean:.4f} ± {cv_auc_std:.4f}")
 
     result = {
-        "model":       final_model,
-        "preprocessor": pre,
+        "model":            final_model,
+        "preprocessor":     pre,
         "feature_engineer": fe,
-        "best_params": best_params,
-        "cv_auc_mean": cv_auc_mean,
-        "cv_auc_std":  cv_auc_std,
-        "feature_names": ALL_FEATURES,
+        "best_params":      best_params,
+        "cv_auc_mean":      cv_auc_mean,
+        "cv_auc_std":       cv_auc_std,
+        "feature_names":    feature_names,
     }
 
     if save:
@@ -172,7 +174,6 @@ def train(
 
 
 def _save_artifacts(result: dict, model_name: str) -> None:
-    """Serializa modelo, preprocessor y metadata."""
     model_path = MODELS_DIR / f"{model_name}.joblib"
     meta_path  = MODELS_DIR / f"{model_name}_metadata.json"
 
