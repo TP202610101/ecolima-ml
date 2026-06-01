@@ -136,3 +136,8 @@ Ver `docs/challenges/data-gaps.md` para detalle completo.
   of applicability of spatial prediction models. *Methods in Ecology and Evolution*.
 - Koldasbayeva et al. (2024). Challenges in data-driven geospatial modeling
   for environmental research.
+
+
+  el minimo de precision debe ser 80%
+
+  
