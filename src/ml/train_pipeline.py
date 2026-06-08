@@ -27,7 +27,9 @@ from ml.data_generator import generate_synthetic_dataset
 from ml.preprocessing import load_and_split
 from ml.trainer import train
 from ml.evaluator import evaluate_classifier, find_optimal_threshold
-from ml.config import SYNTH_DIR
+from ml.config import SYNTH_DIR, DATA_DIR
+
+REAL_DATASET_V1 = DATA_DIR / "real" / "dataset_entrenamiento_v1.csv"
 
 
 # ── Helpers de logging ────────────────────────────────────────────────────────
@@ -58,8 +60,8 @@ def parse_args():
     parser.add_argument("--n-per-district", type=int, default=200,
                         help="Zonas candidatas por distrito en datos sintéticos")
     parser.add_argument("--model-name",     type=str, default="lgbm_recycling")
-    parser.add_argument("--csv",            type=str, default=None,
-                        help="Ruta a CSV de datos reales (omitir para usar sintéticos)")
+    parser.add_argument("--csv",            type=str, default=str(REAL_DATASET_V1),
+                        help="Ruta a CSV de datos reales (default: data/real/dataset_entrenamiento_v1.csv)")
     parser.add_argument("--regen",          action="store_true",
                         help="Forzar regeneración del dataset sintético aunque exista")
     return parser.parse_args()
@@ -80,19 +82,20 @@ def main():
     # ── Paso 1: Datos ─────────────────────────────────────────────────────────
     t0 = _step(1, TOTAL, "Carga / generación de datos")
 
-    if args.csv:
-        csv_path = Path(args.csv)
-        print(f"  Fuente: datos reales → {csv_path}")
-        if not csv_path.exists():
-            raise FileNotFoundError(f"No se encontró el archivo: {csv_path}")
-    else:
-        csv_path = SYNTH_DIR / "synthetic_dataset.csv"
+    csv_path = Path(args.csv)
+    synth_path = SYNTH_DIR / "synthetic_dataset.csv"
+
+    if csv_path == synth_path:
         if args.regen or not csv_path.exists():
             print(f"  Fuente: datos sintéticos (generando {args.n_per_district} zonas/distrito)...")
             generate_synthetic_dataset(n_per_district=args.n_per_district)
         else:
             print(f"  Fuente: datos sintéticos existentes → {csv_path}")
             print(f"  (usar --regen para forzar regeneración)")
+    else:
+        print(f"  Fuente: datos reales → {csv_path}")
+        if not csv_path.exists():
+            raise FileNotFoundError(f"No se encontró el archivo: {csv_path}")
 
     _done(t0)
 

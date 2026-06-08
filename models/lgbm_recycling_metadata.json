@@ -1,20 +1,20 @@
 {
   "model_name": "lgbm_recycling",
   "target": "is_optimal",
-  "cv_auc_mean": 0.5736295649784685,
-  "cv_auc_std": 0.027741424142220725,
+  "cv_auc_mean": 0.5,
+  "cv_auc_std": 0.0,
   "best_params": {
     "objective": "binary",
     "metric": "auc",
     "boosting_type": "gbdt",
-    "n_estimators": 227,
-    "learning_rate": 0.03822726574649208,
-    "num_leaves": 28,
-    "min_child_samples": 56,
-    "subsample": 0.7035119926400067,
-    "colsample_bytree": 0.8650089137415928,
-    "reg_alpha": 0.00861257919259488,
-    "reg_lambda": 0.03632486956676605,
+    "n_estimators": 786,
+    "learning_rate": 0.13125830316209655,
+    "num_leaves": 57,
+    "min_child_samples": 40,
+    "subsample": 0.6624074561769746,
+    "colsample_bytree": 0.662397808134481,
+    "reg_alpha": 0.0014936568554617625,
+    "reg_lambda": 0.39676050770529875,
     "random_state": 42,
     "n_jobs": -1,
     "verbose": -1
@@ -31,7 +31,6 @@
     "poi_commercial_500m",
     "poi_educational_500m",
     "poi_parks_500m",
-    "land_use_encoded",
     "area_m2",
     "dist_nearest_recycling_m",
     "recycling_density_1km",
@@ -39,6 +38,7 @@
     "coverage_gap_index",
     "accessibility_composite",
     "nse_high_ratio",
-    "recycling_deficit"
+    "recycling_deficit",
+    "land_use_encoded"
   ]
 }

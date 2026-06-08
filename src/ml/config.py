@@ -6,7 +6,7 @@ Constantes globales del módulo ML: rutas, listas de features, parámetros por d
 from pathlib import Path
 
 # ── Rutas ────────────────────────────────────────────────────────────────────
-ROOT_DIR   = Path(__file__).resolve().parent.parent
+ROOT_DIR   = Path(__file__).resolve().parent.parent.parent
 DATA_DIR   = ROOT_DIR / "data"
 MODELS_DIR = ROOT_DIR / "models"
 SYNTH_DIR  = DATA_DIR / "synthetic"

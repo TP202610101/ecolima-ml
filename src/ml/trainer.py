@@ -19,7 +19,7 @@ import pandas as pd
 import lightgbm as lgb
 import optuna
 from optuna.samplers import TPESampler
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, StratifiedKFold
 from sklearn.metrics import roc_auc_score
 from pathlib import Path
 
@@ -51,10 +51,20 @@ def _numeric_features() -> list[str]:
     return [f for f in ALL_FEATURES if f not in CATEGORICAL_FEATURES]
 
 
+def _make_cv(groups: pd.Series) -> tuple:
+    """Devuelve (splitter, use_groups). Cae a StratifiedKFold si hay pocos distritos."""
+    n_groups = groups.nunique()
+    if n_groups >= CV_N_SPLITS:
+        return GroupKFold(n_splits=CV_N_SPLITS), True
+    n_splits = max(2, n_groups)
+    print(f"[trainer] Solo {n_groups} grupo(s) en train → StratifiedKFold(n_splits={n_splits})")
+    return StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE), False
+
+
 # ── Objetivo Optuna ──────────────────────────────────────────────────────────
 
 def _build_objective(X: pd.DataFrame, y: pd.Series, groups: pd.Series):
-    gkf            = GroupKFold(n_splits=CV_N_SPLITS)
+    cv, use_groups = _make_cv(groups)
     fe             = FeatureEngineer()
     feature_names  = _get_feature_names_after_transform(None, _numeric_features(), CATEGORICAL_FEATURES)
 
@@ -74,7 +84,8 @@ def _build_objective(X: pd.DataFrame, y: pd.Series, groups: pd.Series):
         model = lgb.LGBMClassifier(**params)
         aucs  = []
 
-        for train_idx, val_idx in gkf.split(X, y, groups):
+        split_iter = cv.split(X, y, groups) if use_groups else cv.split(X, y)
+        for train_idx, val_idx in split_iter:
             X_tr,  X_val  = X.iloc[train_idx], X.iloc[val_idx]
             y_tr,  y_val  = y.iloc[train_idx], y.iloc[val_idx]
 
@@ -137,9 +148,10 @@ def train(
     final_model.fit(X_pre, y_train)
 
     # CV final para reporte de métrica
-    gkf  = GroupKFold(n_splits=CV_N_SPLITS)
+    cv_final, use_groups_final = _make_cv(groups_train)
     aucs = []
-    for train_idx, val_idx in gkf.split(X_train, y_train, groups_train):
+    split_iter = cv_final.split(X_train, y_train, groups_train) if use_groups_final else cv_final.split(X_train, y_train)
+    for train_idx, val_idx in split_iter:
         X_tr,  X_val  = X_train.iloc[train_idx], X_train.iloc[val_idx]
         y_tr,  y_val  = y_train.iloc[train_idx], y_train.iloc[val_idx]
 

@@ -68,6 +68,10 @@ class FeatureEngineer(BaseEstimator, TransformerMixin):
         if "coverage_gap_index" not in X.columns:
             X["coverage_gap_index"] = X["recycling_deficit"].astype(float)
 
+        # Compatibilidad con dataset real: has_park_300m → poi_parks_500m
+        if "poi_parks_500m" not in X.columns and "has_park_300m" in X.columns:
+            X["poi_parks_500m"] = X["has_park_300m"].astype(float)
+
         return X
 
 
@@ -150,10 +154,11 @@ def load_and_split(
     elif df is None:
         raise ValueError("Proveer csv_path o df.")
 
-    # Seleccionar distritos de test (los últimos 2 por defecto → ~20% de datos)
+    # Seleccionar distritos de test (1 ó 2, garantizando que train no quede vacío)
     if test_districts is None:
         all_districts = sorted(df[GROUP_COLUMN].unique())
-        test_districts = all_districts[-2:]     # ej. La Molina y Surquillo
+        n_test = min(2, len(all_districts) - 1)
+        test_districts = all_districts[-n_test:]
 
     print(f"[preprocessing] Distritos de TEST: {test_districts}")
     print(f"[preprocessing] Distritos de TRAIN: {[d for d in df[GROUP_COLUMN].unique() if d not in test_districts]}")
@@ -161,11 +166,12 @@ def load_and_split(
     test_mask  = df[GROUP_COLUMN].isin(test_districts)
     train_mask = ~test_mask
 
-    feature_cols = ALL_FEATURES
-    # Agregar columnas base necesarias para FeatureEngineer aunque no sean ALL_FEATURES
+    # Solo incluir features que existen en el CSV (engineered se calculan después)
+    feature_cols = [f for f in ALL_FEATURES if f in df.columns]
+    # Columnas base para FeatureEngineer aunque no estén en ALL_FEATURES
     extra_cols = [c for c in [
         "walkability_score", "dist_nearest_road_m", "nse_ab_pct",
-        "dist_nearest_recycling_m", "coverage_gap_index"
+        "dist_nearest_recycling_m", "coverage_gap_index", "has_park_300m",
     ] if c in df.columns]
 
     cols_to_keep = list(dict.fromkeys(feature_cols + extra_cols))
