@@ -141,3 +141,38 @@ Ver `docs/challenges/data-gaps.md` para detalle completo.
   el minimo de precision debe ser 80%
 
   
+
+---
+
+## Actualizacion 2026-07-01 - datasets y servicio ML
+
+Se separan dos artefactos para no confundir desarrollo tecnico con evidencia de tesis:
+
+- `data/real/dataset_real_candidatos_v0_3.csv`: dataset real provisional para auditoria y endpoints. Conserva etiquetas heredadas como `is_optimal_legacy`, pero no las adopta como `is_suitable`.
+- `data/synthetic/dataset_entrenamiento_simulado_v0_3.csv`: dataset simulado entrenable para desarrollar el pipeline, probar el modelo y validar contratos de API.
+
+Comandos locales:
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts/prepare_real_dataset.py
+python scripts/run_simulated_training.py --n-per-district 100 --positive-rate 0.35
+python scripts/smoke_api_contract.py
+```
+
+API local opcional, despues de instalar `requirements-api.txt`:
+
+```powershell
+$env:PYTHONPATH="src"
+uvicorn ml.api.app:app --reload --host 0.0.0.0 --port 8001
+```
+
+Endpoints previstos:
+
+- `GET /health`
+- `GET /model/metadata`
+- `POST /predict`
+- `POST /predict/batch`
+- `POST /recommendations`
+
+Nota metodologica: el modelo entrenado con data simulada no valida el target real. Sirve para que `ecolima-backend` tenga un contrato estable mientras se cierra la grilla, las variables y el etiquetado real.

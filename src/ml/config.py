@@ -10,9 +10,18 @@ ROOT_DIR   = Path(__file__).resolve().parent.parent.parent
 DATA_DIR   = ROOT_DIR / "data"
 MODELS_DIR = ROOT_DIR / "models"
 SYNTH_DIR  = DATA_DIR / "synthetic"
+REAL_DIR   = DATA_DIR / "real"
+OUTPUTS_DIR = ROOT_DIR / "outputs"
+METRICS_DIR = OUTPUTS_DIR / "metrics"
+API_OUTPUTS_DIR = OUTPUTS_DIR / "api"
+DATASETS_OUTPUTS_DIR = OUTPUTS_DIR / "datasets"
 
-MODELS_DIR.mkdir(parents=True, exist_ok=True)
-SYNTH_DIR.mkdir(parents=True, exist_ok=True)
+DEFAULT_REAL_CANDIDATE_DATASET = REAL_DIR / "dataset_real_candidatos_v0_3.csv"
+DEFAULT_SIMULATED_TRAINING_DATASET = SYNTH_DIR / "dataset_entrenamiento_simulado_v0_3.csv"
+DEFAULT_SERVING_MODEL = "lgbm_recycling_simulated_v0_3"
+
+for _dir in (MODELS_DIR, SYNTH_DIR, REAL_DIR, METRICS_DIR, API_OUTPUTS_DIR, DATASETS_OUTPUTS_DIR):
+    _dir.mkdir(parents=True, exist_ok=True)
 
 # ── Features ─────────────────────────────────────────────────────────────────
 # Demográficas (fuente: INEI / socioeconomic_indicators)

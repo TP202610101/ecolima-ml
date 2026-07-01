@@ -1,0 +1,17 @@
+{
+  "dataset_version": "real-candidates-v0.3",
+  "source": "C:\\Users\\nikole.garcia\\OneDrive\\Repositorios\\TESIS\\ecolima-ml\\data\\real\\dataset_entrenamiento_v1_materialized.csv",
+  "output": "C:\\Users\\nikole.garcia\\OneDrive\\Repositorios\\TESIS\\ecolima-ml\\data\\real\\dataset_real_candidatos_v0_3.csv",
+  "rows": 54,
+  "columns": 52,
+  "label_status_counts": {
+    "desconocido": 54
+  },
+  "legacy_target_counts": {
+    "0": 40,
+    "1": 14
+  },
+  "with_centroid": 54,
+  "training_allowed": false,
+  "warning": "Dataset real provisional para auditoria/endpoints; no valida el target ni reemplaza etiquetas trazables."
+}

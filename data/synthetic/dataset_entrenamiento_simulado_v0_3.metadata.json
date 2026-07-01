@@ -1,0 +1,17 @@
+{
+  "dataset_version": "simulated-training-v0.3",
+  "output": "C:\\Users\\nikole.garcia\\OneDrive\\Repositorios\\TESIS\\ecolima-ml\\data\\synthetic\\dataset_entrenamiento_simulado_v0_3.csv",
+  "rows": 1000,
+  "columns": 35,
+  "districts": 10,
+  "n_per_district": 100,
+  "target_positive_rate_requested": 0.35,
+  "target_positive_rate_observed": 0.351,
+  "target_counts": {
+    "0": 649,
+    "1": 351
+  },
+  "score_cutoff": 0.9544,
+  "training_allowed": true,
+  "warning": "Dataset simulado para desarrollo tecnico; no usar como evidencia empirica de tesis."
+}
