@@ -1,0 +1,189 @@
+{
+  "tipo": "LogisticRegression(class_weight='balanced', C=1.0, max_iter=5000, solver='lbfgs')",
+  "features": [
+    "clase_oportunidad",
+    "pob_wp_r250",
+    "pob_wp_r500",
+    "pob_wp_r1000",
+    "vias_km_km2_r250",
+    "vias_km_km2_r500",
+    "vias_km_km2_r1000",
+    "poi_n_km2_r250",
+    "poi_n_km2_r500",
+    "poi_n_km2_r1000",
+    "ghsl_frac_construida_r250",
+    "ghsl_frac_construida_r500",
+    "ghsl_frac_construida_r1000",
+    "pendiente_grados",
+    "sigersol_gpc_municipal_kg_hab_dia"
+  ],
+  "features_log1p": [
+    "pob_wp_r250",
+    "pob_wp_r500",
+    "pob_wp_r1000",
+    "vias_km_km2_r250",
+    "vias_km_km2_r500",
+    "vias_km_km2_r1000",
+    "poi_n_km2_r250",
+    "poi_n_km2_r500",
+    "poi_n_km2_r1000"
+  ],
+  "numericas": {
+    "orden": [
+      "pob_wp_r250",
+      "pob_wp_r500",
+      "pob_wp_r1000",
+      "vias_km_km2_r250",
+      "vias_km_km2_r500",
+      "vias_km_km2_r1000",
+      "poi_n_km2_r250",
+      "poi_n_km2_r500",
+      "poi_n_km2_r1000",
+      "ghsl_frac_construida_r250",
+      "ghsl_frac_construida_r500",
+      "ghsl_frac_construida_r1000",
+      "pendiente_grados",
+      "sigersol_gpc_municipal_kg_hab_dia"
+    ],
+    "media": [
+      7.875315680190407,
+      9.258768378637178,
+      10.627660147063981,
+      3.322180231261108,
+      3.241617322071511,
+      3.1678247774204054,
+      4.319002693937323,
+      4.275472994483828,
+      4.18213570064287,
+      0.3934477420430974,
+      0.3938083167337098,
+      0.37293387835604874,
+      2.8040634246534477,
+      0.9919580731489742
+    ],
+    "escala": [
+      0.6072820270138244,
+      0.6007258140952838,
+      0.606069025934314,
+      0.22966089149602287,
+      0.223231249567407,
+      0.2534952538417047,
+      1.3466602035727864,
+      1.1454178958390928,
+      1.0288884957013216,
+      0.07793104898793525,
+      0.08025080638067807,
+      0.08644104426247733,
+      2.417895242281796,
+      0.1125911347761694
+    ]
+  },
+  "categorica": {
+    "feature": "clase_oportunidad",
+    "categorias": [
+      "centro_comercial",
+      "mercado_municipal_no_confirmado",
+      "paradero_transporte_publico",
+      "parque"
+    ],
+    "desconocida": "todas las indicadoras en 0"
+  },
+  "columnas_transformadas": [
+    "num__pob_wp_r250",
+    "num__pob_wp_r500",
+    "num__pob_wp_r1000",
+    "num__vias_km_km2_r250",
+    "num__vias_km_km2_r500",
+    "num__vias_km_km2_r1000",
+    "num__poi_n_km2_r250",
+    "num__poi_n_km2_r500",
+    "num__poi_n_km2_r1000",
+    "num__ghsl_frac_construida_r250",
+    "num__ghsl_frac_construida_r500",
+    "num__ghsl_frac_construida_r1000",
+    "num__pendiente_grados",
+    "num__sigersol_gpc_municipal_kg_hab_dia",
+    "cat__clase_oportunidad_centro_comercial",
+    "cat__clase_oportunidad_mercado_municipal_no_confirmado",
+    "cat__clase_oportunidad_paradero_transporte_publico",
+    "cat__clase_oportunidad_parque"
+  ],
+  "coeficientes": [
+    -0.2623923357834972,
+    -0.6658080842979615,
+    0.4177679878518925,
+    -1.3525469779881687,
+    1.2173002037744851,
+    -1.221274362431156,
+    0.5782331782685308,
+    -0.6579549327616764,
+    1.209068500853148,
+    -0.09263358426816713,
+    -1.003966313091245,
+    1.5330514852728052,
+    0.050056238310270985,
+    -0.3014058386178055,
+    0.3285007015668603,
+    -1.6381252219345974,
+    2.029304534145471,
+    -0.8365721408786072
+  ],
+  "intercepto": -2.8038580413520156,
+  "contribuciones": {
+    "definicion": "coef_j × (z_j − media de z_j en los 2 242 sitios de entrenamiento), en logit; clase_oportunidad suma sus indicadoras",
+    "grupos": {
+      "clase": [
+        "clase_oportunidad"
+      ],
+      "poblacion": [
+        "pob_wp_r250",
+        "pob_wp_r500",
+        "pob_wp_r1000"
+      ],
+      "vias": [
+        "vias_km_km2_r250",
+        "vias_km_km2_r500",
+        "vias_km_km2_r1000"
+      ],
+      "pois": [
+        "poi_n_km2_r250",
+        "poi_n_km2_r500",
+        "poi_n_km2_r1000"
+      ],
+      "construido": [
+        "ghsl_frac_construida_r250",
+        "ghsl_frac_construida_r500",
+        "ghsl_frac_construida_r1000"
+      ],
+      "pendiente": [
+        "pendiente_grados"
+      ],
+      "sigersol": [
+        "sigersol_gpc_municipal_kg_hab_dia"
+      ]
+    },
+    "publicacion": "por grupo (suma de sus columnas); los radios de una misma variable son colineales y sus contribuciones individuales se compensan entre sí",
+    "logit_base": -0.9742593143513745,
+    "medias_z": [
+      1.5998761934642122e-16,
+      -1.590018754978956e-15,
+      3.536607521853162e-17,
+      -4.695421373548498e-16,
+      -7.052540730022962e-16,
+      -1.3704965401215803e-15,
+      4.979290842266773e-16,
+      -1.2379828552912093e-18,
+      3.0187592934848494e-16,
+      3.486407317071104e-16,
+      -5.774880524219669e-16,
+      1.7995318784513018e-16,
+      -1.4806274949282863e-16,
+      -3.1592827273889546e-15,
+      0.03166815343443354,
+      0.0352363960749331,
+      0.9272970561998216,
+      0.005798394290811775
+    ]
+  },
+  "prediccion": "z = (transformar(x) − media)/escala para numéricas (log1p previo en features_log1p); indicadoras one-hot; propension = 1/(1+exp(−(intercepto + Σ coef·z)))"
+}

@@ -1,178 +1,84 @@
+<!-- Fecha de modificación: 2026-10-06 -->
+
 # ecolima-ml
 
-Pipeline de Machine Learning para recomendar ubicaciones óptimas de puntos
-de reciclaje en Lima Metropolitana.
+Componente de Machine Learning de EcoLima: **propensión de emplazamiento** de puntos de reciclaje públicos en los
+43 distritos de la provincia de Lima, y entrega versionada de los resultados (tamizaje, propensión y priorización
+MCDA) al backend.
 
-Componente ML del proyecto EcoLima — Taller de Proyecto I (TP1), 2026-10.
-Universidad Peruana de Ciencias Aplicadas (UPC).
+Proyecto EcoLima — Universidad Peruana de Ciencias Aplicadas (UPC).
+**Autora:** Nikole García Chávez · **Coautor:** Alexander Cantoral Sedamano
 
-**Autora:** Nikole García Chávez — Ciencias de la Computación  
-**Co-autor:** Alexander Cantoral Sedamano — Ingeniería de Software  
-**Asesora metodológica:** Esther Aliaga Cerna  
-**Co-asesor:** Peter Jonathan Montalvo Garcia
-
----
-
-## Descripción
-
-EcoLima ML analiza datos geoespaciales (OpenStreetMap), demográficos (INEI),
-socioeconómicos (APEIM) y operativos (puntos de reciclaje reales) para
-identificar zonas óptimas donde instalar contenedores de reciclaje en los
-50 distritos de Lima Metropolitana.
-
-El modelo (LightGBM + SHAP) opera sobre una grilla espacial de celdas de
-500m × 500m (~11,000 celdas sobre Lima). Cada celda recibe un score de
-idoneidad (0–1) con explicaciones por variable vía SHAP values.
-
----
-
-## Stack
-
-| Componente | Tecnología |
-|---|---|
-| Algoritmo ML | LightGBM |
-| Interpretabilidad | SHAP (TreeExplainer) |
-| Pipeline | Python 3.11 |
-| Datos geoespaciales | osmnx, geopandas, PostGIS |
-| Experimentos | Google Colab / notebooks locales |
-| Serialización | joblib |
-
----
-
-## Estructura del repositorioecolima-ml/
+## Qué contiene
 
 ```
-├── data/
-│   ├── raw/              # Datos originales (no versionados)
-│   ├── processed/        # Features engineered (no versionados)
-│   ├── simulated/        # Dataset EMI simulado para desarrollo
-│   └── recycling_points/ # Puntos reales: Miraflores + Magdalena del Mar
-├── src/
-│   └── files/
-│       ├── config.py
-│       ├── data_generator.py
-│       ├── evaluator.py
-│       ├── explainer.py
-│       ├── predictor.py
-│       ├── preprocessing.py
-│       ├── train_pipeline.py
-│       └── trainer.py
-├── notebooks/
-│   ├── 01_eda_simulated_data.ipynb
-│   ├── 02_feature_engineering.ipynb
-│   ├── 03_model_benchmarking.ipynb
-│   └── 04_shap_analysis.ipynb
-├── models/               # Modelos serializados (no versionados)
-├── outputs/
-│   ├── metrics/
-│   ├── shap_plots/
-│   └── recommendations/
-└── docs/
-├── decisions/
-│   ├── ADR-001-lightgbm-over-xgboost.md
-│   ├── ADR-002-clasificacion-binaria-vs-regresion.md
-│   └── ADR-003-spatial-cv-strategy.md
-├── challenges/
-│   └── data-gaps.md
-└── pipeline-stages.md
-
+ecolima-ml/
+├── paquete/v1.0.0/     paquete de resultados que consume el backend (cada archivo con su sha256 en manifest.json)
+│   ├── datos/          dataset congelado, fuentes y distritos
+│   ├── modelo/         parámetros de la regresión logística, model card y métricas por semilla
+│   └── salidas/        sitios, tamizaje, propensión y MCDA
+├── src/ecolima_ml/     carga del paquete, modelo, validaciones y reproducción
+├── scripts/            validar_paquete.py, reproducir_metricas.py
+└── tests/
 ```
 
+El backend usa solo `paquete/v1.0.0/`: lo importa, verifica los hashes y sirve los resultados sin recalcular. El
+resto del repositorio permite comprobar que el paquete es correcto y reproducible.
 
----
+## Versión actual
 
-## Cómo reproducir
-
-> Los datos crudos no están versionados. Ver `docs/challenges/data-gaps.md`
-> para el estado actual de disponibilidad de datos.
-
-```bashpip install -r requirements.txt
-python src/files/train_pipeline.py
-
-Para desarrollo con datos simulados:
-
-```bashpython src/files/data_generator.py   # genera dataset EMI simulado
-python src/files/train_pipeline.py
-
----
-
-## Estado actual
-
-Ver `CHANGELOG.md` para el historial detallado.
-
-| Etapa | Estado |
+| Componente | Versión |
 |---|---|
-| Generación de datos simulados | ✅ Completo |
-| Preprocesamiento | ✅ Completo |
-| Entrenamiento LightGBM | ✅ Completo |
-| Evaluación de métricas | ✅ Completo |
-| Interpretabilidad SHAP | ✅ Completo |
-| Predicción sobre zonas candidatas | ✅ Completo |
-| Datos reales (más allá de 2 distritos) | ⏳ En progreso |
-| Spatial cross-validation | ⏳ Pendiente |
-| Grilla 500m × 500m Lima completa | ⏳ Pendiente |
+| Paquete | `1.0.0` |
+| Dataset | `1.0.0` (2 242 sitios: 47 puntos existentes y 2 195 de fondo) |
+| Modelo | `propension-1.0.0` (regresión logística, 15 variables) |
+| MCDA | `1.0.2` (2 192 sitios `apto_tamizaje`) |
 
----
+El contrato del paquete (archivos, columnas y validaciones) está en `contrato-paquete-v1.md`, repositorio `tp2-docs`.
 
-## Limitaciones conocidas
+## Cómo leer los resultados
 
-- Cobertura de entrenamiento actual: Miraflores y Magdalena del Mar (datos reales).
-  Expansión progresiva en curso.
-- Dataset EMI simulado usado para desarrollo inicial; debe reemplazarse con
-  datos reales MINAM/municipales.
-- Split espacial train/test aún no implementado por distrito (pendiente con
-  datos de más distritos).
+- **Propensión:** cuánto se parece un sitio a los lugares donde hoy hay puntos de reciclaje. No es idoneidad,
+  viabilidad ni probabilidad; se muestra como **percentil**.
+- **`apto_tamizaje`:** el sitio pasa las reglas evaluables con datos secundarios. **Ningún sitio es «viable»**:
+  no hay verificación de campo.
+- **MCDA:** ordena los sitios aptos con cuatro criterios (demanda, generación, brecha y vías). El top-110 es
+  «prioridad MCDA», no una recomendación final. La propensión no entra en el puntaje.
 
-Ver `docs/challenges/data-gaps.md` para detalle completo.
-
----
-
-## Referencias clave
-
-- Valavi et al. (2019). blockCV: An r package for generating spatially or
-  environmentally separated folds for k-fold cross-validation of species
-  distribution models. *Methods in Ecology and Evolution*.
-- Meyer & Pebesma (2021). Predicting into unknown space? Estimating the area
-  of applicability of spatial prediction models. *Methods in Ecology and Evolution*.
-- Koldasbayeva et al. (2024). Challenges in data-driven geospatial modeling
-  for environmental research.
-
-
-  el minimo de precision debe ser 80%
-
-  
-
----
-
-## Actualizacion 2026-07-01 - datasets y servicio ML
-
-Se separan dos artefactos para no confundir desarrollo tecnico con evidencia de tesis:
-
-- `data/real/dataset_real_candidatos_v0_3.csv`: dataset real provisional para auditoria y endpoints. Conserva etiquetas heredadas como `is_optimal_legacy`, pero no las adopta como `is_suitable`.
-- `data/synthetic/dataset_entrenamiento_simulado_v0_3.csv`: dataset simulado entrenable para desarrollar el pipeline, probar el modelo y validar contratos de API.
-
-Comandos locales:
+## Uso
 
 ```powershell
-$env:PYTHONPATH="src"
-python scripts/prepare_real_dataset.py
-python scripts/run_simulated_training.py --n-per-district 100 --positive-rate 0.35
-python scripts/smoke_api_contract.py
+python -m pip install -r requirements.txt        # requirements-dev.txt añade pytest
+python scripts/validar_paquete.py                # validaciones 1–15 del contrato (código 1 si falla)
+python scripts/reproducir_metricas.py            # reentrena y compara con modelo/metricas_por_semilla.csv
+python -m pytest
 ```
 
-API local opcional, despues de instalar `requirements-api.txt`:
+Propensión de una observación con las 15 variables:
 
-```powershell
-$env:PYTHONPATH="src"
-uvicorn ml.api.app:app --reload --host 0.0.0.0 --port 8001
+```python
+from ecolima_ml import ModeloPropension
+from ecolima_ml.paquete import cargar
+
+paquete = cargar()                                  # verifica versión y hashes
+modelo = ModeloPropension.desde_paquete(paquete)
+r = modelo.calcular(paquete.dataset().iloc[0].to_dict())
+r.propension, r.contribuciones, r.aviso
 ```
 
-Endpoints previstos:
+## Limitaciones
 
-- `GET /health`
-- `GET /model/metadata`
-- `POST /predict`
-- `POST /predict/batch`
-- `POST /recommendations`
+- 47 positivos concentrados en 14 de 40 distritos; OSM mapea de forma desigual, así que las métricas son cotas
+  inferiores.
+- La propensión refleja dónde se instaló en el pasado, no dónde conviene instalar.
+- Las variables llegan congeladas y no se recalculan desde este repositorio.
 
-Nota metodologica: el modelo entrenado con data simulada no valida el target real. Sirve para que `ecolima-backend` tenga un contrato estable mientras se cierra la grilla, las variables y el etiquetado real.
+## Licencias
+
+Los datos (`paquete/`) son una base derivada de OpenStreetMap bajo la **Open Database License 1.0**
+(https://opendatacommons.org/licenses/odbl/1-0/), con datos de WorldPop, GHSL, Copernicus DEM, MINAM-SIGERSOL, IGN
+y la Municipalidad Distrital de San Isidro. Avisos completos en `paquete/v1.0.0/LICENCIA-DATOS.md` y
+`paquete/v1.0.0/datos/fuentes.csv`. Licencia del código: por decidir.
+
+La implementación anterior (v0.3, datos simulados y LightGBM) quedó retirada; está en el historial de Git
+(commit `9b98581`).

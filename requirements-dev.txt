@@ -1,0 +1,3 @@
+# Fecha de creación: 2026-10-03
+-r requirements.txt
+pytest==9.1.1

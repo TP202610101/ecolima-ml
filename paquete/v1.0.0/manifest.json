@@ -1,0 +1,394 @@
+{
+  "paquete": "1.0.0",
+  "fecha": "2026-10-03T15:34:38-05:00",
+  "responsable": "Nikole García",
+  "descripcion": "Propensión de emplazamiento (PU) y MCDA de sitios candidatos para puntos de reciclaje públicos, fijos y multimaterial; 43 distritos de la provincia de Lima",
+  "dataset": {
+    "version": "1.0.0",
+    "archivo": "datos/dataset_v1.0.0.csv",
+    "sha256": "aa6f277925473681eb9d1012ff0eb11065d0f1a7b3d20acfcacfb598e2568154",
+    "filas": 2242,
+    "positivos": 47,
+    "fondo": 2195,
+    "distritos": 40,
+    "distritos_con_positivos": 14,
+    "unidades": {
+      "clase_oportunidad": "categoria",
+      "pob_wp_r250": "personas",
+      "pob_wp_r500": "personas",
+      "pob_wp_r1000": "personas",
+      "vias_km_km2_r250": "km/km2",
+      "vias_km_km2_r500": "km/km2",
+      "vias_km_km2_r1000": "km/km2",
+      "poi_n_km2_r250": "POI/km2",
+      "poi_n_km2_r500": "POI/km2",
+      "poi_n_km2_r1000": "POI/km2",
+      "ghsl_frac_construida_r250": "proporcion",
+      "ghsl_frac_construida_r500": "proporcion",
+      "ghsl_frac_construida_r1000": "proporcion",
+      "pendiente_grados": "grados",
+      "sigersol_gpc_municipal_kg_hab_dia": "kg/hab/dia"
+    },
+    "reglas_construccion": {
+      "positivos": "puntos OSM amenity=recycling con recycling_type container, underground o sin etiqueta, más las estaciones ER01–ER10 de San Isidro",
+      "excluidos": {
+        "fuera_43_distritos": 1,
+        "recycling_type=centre": 3,
+        "duplicado_de_estacion_ER": 1
+      },
+      "radio_duplicado_m": 30.0,
+      "distrito": "asignado por límites IDEP para todos los sitios"
+    }
+  },
+  "modelo": {
+    "version": "propension-1.0.0",
+    "algoritmo": "LogisticRegression(class_weight='balanced', C=1.0, max_iter=5000, solver='lbfgs')",
+    "features": [
+      "clase_oportunidad",
+      "pob_wp_r250",
+      "pob_wp_r500",
+      "pob_wp_r1000",
+      "vias_km_km2_r250",
+      "vias_km_km2_r500",
+      "vias_km_km2_r1000",
+      "poi_n_km2_r250",
+      "poi_n_km2_r500",
+      "poi_n_km2_r1000",
+      "ghsl_frac_construida_r250",
+      "ghsl_frac_construida_r500",
+      "ghsl_frac_construida_r1000",
+      "pendiente_grados",
+      "sigersol_gpc_municipal_kg_hab_dia"
+    ],
+    "cv": "StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=semilla), grupos=ubigeo",
+    "semillas": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "metricas_referencia_por_semilla": [
+      {
+        "semilla": 0,
+        "roc_auc": 0.750884505404,
+        "pr_auc": 0.07522668411,
+        "boyce": 0.758096000372,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.276595744681,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.510638297872
+      },
+      {
+        "semilla": 1,
+        "roc_auc": 0.747811757864,
+        "pr_auc": 0.063798626362,
+        "boyce": 0.786522404559,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.148936170213,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.553191489362
+      },
+      {
+        "semilla": 2,
+        "roc_auc": 0.749701933795,
+        "pr_auc": 0.07535812896,
+        "boyce": 0.748080621067,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.276595744681,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.489361702128
+      },
+      {
+        "semilla": 3,
+        "roc_auc": 0.752164009112,
+        "pr_auc": 0.074909603354,
+        "boyce": 0.758420859407,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.297872340426,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.510638297872
+      },
+      {
+        "semilla": 4,
+        "roc_auc": 0.751902292444,
+        "pr_auc": 0.07593513533,
+        "boyce": 0.749855983717,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.297872340426,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.510638297872
+      },
+      {
+        "semilla": 5,
+        "roc_auc": 0.743624291184,
+        "pr_auc": 0.069349369243,
+        "boyce": 0.725965971972,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.255319148936,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.489361702128
+      },
+      {
+        "semilla": 6,
+        "roc_auc": 0.750128435031,
+        "pr_auc": 0.065304589398,
+        "boyce": 0.806051557528,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.191489361702,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.574468085106
+      },
+      {
+        "semilla": 7,
+        "roc_auc": 0.750322299229,
+        "pr_auc": 0.072354041902,
+        "boyce": 0.737004696669,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.297872340426,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.489361702128
+      },
+      {
+        "semilla": 8,
+        "roc_auc": 0.751902292444,
+        "pr_auc": 0.07593513533,
+        "boyce": 0.749855983717,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.297872340426,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.510638297872
+      },
+      {
+        "semilla": 9,
+        "roc_auc": 0.743876314642,
+        "pr_auc": 0.069880782431,
+        "boyce": 0.746066148295,
+        "prevalencia": 0.020963425513,
+        "recall_top5": 0.276595744681,
+        "recall_top10": 0.425531914894,
+        "recall_top20": 0.510638297872
+      }
+    ],
+    "metricas_resumen": {
+      "roc_auc": {
+        "media": 0.749231813114913,
+        "de": 0.0031613712243239705,
+        "p2.5": 0.7436809964619784,
+        "p97.5": 0.7521051228614355
+      },
+      "pr_auc": {
+        "media": 0.071805209642015,
+        "de": 0.004527432241348283,
+        "p2.5": 0.0641374680450224,
+        "p97.5": 0.07593513532999062
+      },
+      "boyce": {
+        "media": 0.7565920227301716,
+        "de": 0.023436165529373856,
+        "p2.5": 0.728449685029058,
+        "p97.5": 0.8016574981096914
+      },
+      "prevalencia": {
+        "media": 0.020963425512934876,
+        "de": 3.657118196434064e-18,
+        "p2.5": 0.02096342551293488,
+        "p97.5": 0.02096342551293488
+      },
+      "recall_top5": {
+        "media": 0.26170212765957446,
+        "de": 0.05119172321310237,
+        "p2.5": 0.15851063829787235,
+        "p97.5": 0.2978723404255319
+      },
+      "recall_top10": {
+        "media": 0.425531914893617,
+        "de": 0.0,
+        "p2.5": 0.425531914893617,
+        "p97.5": 0.425531914893617
+      },
+      "recall_top20": {
+        "media": 0.5148936170212766,
+        "de": 0.02801193994061208,
+        "p2.5": 0.48936170212765956,
+        "p97.5": 0.5696808510638298
+      }
+    }
+  },
+  "mcda": {
+    "version": "1.0.2",
+    "metodo": "WLC con normalización min–max; criterios de beneficio",
+    "criterios": {
+      "K1_demanda": "Población WorldPop 2020 en radio r (hab)",
+      "K2_generacion": "Población r × GPC municipal SIGERSOL (kg/día)",
+      "K3_brecha": "Distancia al punto de reciclaje existente más cercano (m)",
+      "K4_accesibilidad": "Densidad vial OSM en radio r (km/km², proxy)"
+    },
+    "contexto": {
+      "contexto_propension_oof": "Propensión ML fuera de fold (regresión logística, media de 10 semillas); se muestra junto al ranking, no entra en el puntaje"
+    },
+    "radio_principal_m": 500,
+    "top_k": 110,
+    "top_k_fraccion": 0.05,
+    "montecarlo_n": 5000,
+    "montecarlo_semilla": 20261002,
+    "pesos": {
+      "iguales": {
+        "K1_demanda": 0.25,
+        "K2_generacion": 0.25,
+        "K3_brecha": 0.25,
+        "K4_accesibilidad": 0.25
+      },
+      "entropia": {
+        "K1_demanda": 0.145953,
+        "K2_generacion": 0.147013,
+        "K3_brecha": 0.650466,
+        "K4_accesibilidad": 0.056568
+      },
+      "critic": {
+        "K1_demanda": 0.253623,
+        "K2_generacion": 0.230515,
+        "K3_brecha": 0.306013,
+        "K4_accesibilidad": 0.209849
+      }
+    },
+    "tamizaje": {
+      "apto_tamizaje": 2192,
+      "excluido_tamizaje": 3
+    },
+    "historial": {
+      "1.0.0": "cinco criterios; K5 = propensión fuera de fold de LightGBM",
+      "1.0.1": "cinco criterios; K5 = propensión fuera de fold de la regresión logística",
+      "1.0.2": "cuatro criterios (K1–K4); la propensión pasa a contexto: contradice la brecha de cobertura, no expresa conveniencia y con peso volvía el ranking inestable"
+    }
+  },
+  "entorno": {
+    "python": "3.14.6",
+    "numpy": "2.4.6",
+    "pandas": "3.0.5",
+    "scipy": "1.18.0",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0",
+    "lightgbm_comparacion": "4.7.0"
+  },
+  "archivos": [
+    {
+      "ruta": "datos/dataset_v1.0.0.csv",
+      "sha256": "aa6f277925473681eb9d1012ff0eb11065d0f1a7b3d20acfcacfb598e2568154",
+      "bytes": 799291,
+      "filas": 2242
+    },
+    {
+      "ruta": "datos/distritos.geojson",
+      "sha256": "a7ea64794ab50322a23a65d57acf8cc22d3ef194d53a5d2173ba9daeacfb9514",
+      "bytes": 1520930
+    },
+    {
+      "ruta": "datos/fuentes.csv",
+      "sha256": "ff017f0b98a4b50be11a0d56fdb260f3ae39ea127e38286f10f2aa592639df72",
+      "bytes": 8895,
+      "filas": 11
+    },
+    {
+      "ruta": "docs/features.md",
+      "sha256": "7828eb8fafeaeeb75c5d278306ec9640ff604240e5e3216b1411073fad2d16bd",
+      "bytes": 7003
+    },
+    {
+      "ruta": "LICENCIA-DATOS.md",
+      "sha256": "9589baad36831f88c32829ee79b1a32c6305445a2482423727023dbb21f2f012",
+      "bytes": 4903
+    },
+    {
+      "ruta": "modelo/logistica.joblib",
+      "sha256": "4f0f74dc185c5e4da10de652ed6dfbfe3422b36038de7f77dd509c9342f0da91",
+      "bytes": 4673
+    },
+    {
+      "ruta": "modelo/logistica_parametros.json",
+      "sha256": "cc86e45e2e276b529987e78fada7ed466d5b2872f47a0dd55e8172b6df2d62a8",
+      "bytes": 5112
+    },
+    {
+      "ruta": "modelo/metricas_por_semilla.csv",
+      "sha256": "d7efba2c9ae3c0d53142757806cbb66b623f8a7289d9ce6a620a5802450b9899",
+      "bytes": 1441,
+      "filas": 10
+    },
+    {
+      "ruta": "modelo/model_card.json",
+      "sha256": "4e68b77c53239fbcec90f26eef92346027d3950c96b95108863f42d9b61588ea",
+      "bytes": 6922
+    },
+    {
+      "ruta": "README.md",
+      "sha256": "c1e1f6ed80e5af7876664c0a1b664c82dfef7b252f466e3a55cbe66dda5e6ef1",
+      "bytes": 5737
+    },
+    {
+      "ruta": "salidas/concordancia_mcda.csv",
+      "sha256": "d1c84c9ec1d81b333dc42d70dc28af5c8b36a0ced121f3a99e738b6a4660139e",
+      "bytes": 768,
+      "filas": 8
+    },
+    {
+      "ruta": "salidas/criterios_mcda.csv",
+      "sha256": "d60d5d7a9c48a3bc85f1af1e62d35681b647f98c06d1b593b66c3aea7debc438",
+      "bytes": 436910,
+      "filas": 2192
+    },
+    {
+      "ruta": "salidas/features.csv",
+      "sha256": "8cd52d11eeff2f120498e9155ca5a4364d031a61e534d472dcdba5cbaad4483e",
+      "bytes": 655676,
+      "filas": 2242
+    },
+    {
+      "ruta": "salidas/mcda.csv",
+      "sha256": "4d52e6b4501f3f10dac2df5c2e4d2e89e854f98f4dcd628b7ed1c50dd59d56d3",
+      "bytes": 480695,
+      "filas": 6576
+    },
+    {
+      "ruta": "salidas/mcda_montecarlo.csv",
+      "sha256": "8ff0016eaae023beff88818ba5e92451940be627d238cb51384527d18b5bb69f",
+      "bytes": 140159,
+      "filas": 2192
+    },
+    {
+      "ruta": "salidas/pesos_mcda.csv",
+      "sha256": "9ab5e189d75ccb856a97561e9dbf36ab96746d1b9798c6a8d09fd47e6d2ba574",
+      "bytes": 260,
+      "filas": 3
+    },
+    {
+      "ruta": "salidas/propension.csv",
+      "sha256": "c6d11219aeada94b9a3f7ac1489da2d8667a14d9299143bc78754000d598e8b4",
+      "bytes": 613532,
+      "filas": 2242
+    },
+    {
+      "ruta": "salidas/propension_oof_por_semilla.csv",
+      "sha256": "e756e6f661df4b647711be506e0a42d390457443a63cf08c3f8720bcd3396f3b",
+      "bytes": 503339,
+      "filas": 2242
+    },
+    {
+      "ruta": "salidas/sitios.csv",
+      "sha256": "56d8c728ccb249cfdb6463da3b7cbb060b06382b6c9bb1553f834406cfec1e21",
+      "bytes": 238269,
+      "filas": 2242
+    },
+    {
+      "ruta": "salidas/tamizaje.csv",
+      "sha256": "3eb09b1d31d263ffd06191eec2a89e77ca6d2654004ec966126dcd60bce7eb41",
+      "bytes": 595847,
+      "filas": 2242
+    }
+  ]
+}

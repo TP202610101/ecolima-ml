@@ -1,0 +1,224 @@
+{
+  "modelo": "propension-1.0.0",
+  "dataset_version": "1.0.0",
+  "dataset_sha256": "aa6f277925473681eb9d1012ff0eb11065d0f1a7b3d20acfcacfb598e2568154",
+  "fecha": "2026-10-03",
+  "responsable": "Nikole García",
+  "tarea": "propensión de emplazamiento presencia–fondo (PU): s=1 punto de reciclaje existente, s=0 sitio candidato de fondo NO etiquetado (no es negativo)",
+  "salida": "propensión relativa; no es idoneidad, viabilidad ni probabilidad calibrada (class_weight='balanced' desplaza el nivel de las probabilidades)",
+  "algoritmo": "LogisticRegression(class_weight='balanced', C=1.0, max_iter=5000, solver='lbfgs')",
+  "features": [
+    "clase_oportunidad",
+    "pob_wp_r250",
+    "pob_wp_r500",
+    "pob_wp_r1000",
+    "vias_km_km2_r250",
+    "vias_km_km2_r500",
+    "vias_km_km2_r1000",
+    "poi_n_km2_r250",
+    "poi_n_km2_r500",
+    "poi_n_km2_r1000",
+    "ghsl_frac_construida_r250",
+    "ghsl_frac_construida_r500",
+    "ghsl_frac_construida_r1000",
+    "pendiente_grados",
+    "sigersol_gpc_municipal_kg_hab_dia"
+  ],
+  "n_sitios": 2242,
+  "n_positivos": 47,
+  "n_fondo": 2195,
+  "n_distritos": 40,
+  "n_distritos_con_positivos": 14,
+  "validacion": {
+    "cv": "StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=semilla), grupos=ubigeo",
+    "semillas": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "prediccion": "fuera de fold",
+    "metricas_logistica": {
+      "roc_auc": {
+        "media": 0.749231813114913,
+        "de": 0.0031613712243239705,
+        "p2.5": 0.7436809964619784,
+        "p97.5": 0.7521051228614355
+      },
+      "pr_auc": {
+        "media": 0.071805209642015,
+        "de": 0.004527432241348283,
+        "p2.5": 0.0641374680450224,
+        "p97.5": 0.07593513532999062
+      },
+      "boyce": {
+        "media": 0.7565920227301716,
+        "de": 0.023436165529373856,
+        "p2.5": 0.728449685029058,
+        "p97.5": 0.8016574981096914
+      },
+      "prevalencia": {
+        "media": 0.020963425512934876,
+        "de": 3.657118196434064e-18,
+        "p2.5": 0.02096342551293488,
+        "p97.5": 0.02096342551293488
+      },
+      "recall_top5": {
+        "media": 0.26170212765957446,
+        "de": 0.05119172321310237,
+        "p2.5": 0.15851063829787235,
+        "p97.5": 0.2978723404255319
+      },
+      "recall_top10": {
+        "media": 0.425531914893617,
+        "de": 0.0,
+        "p2.5": 0.425531914893617,
+        "p97.5": 0.425531914893617
+      },
+      "recall_top20": {
+        "media": 0.5148936170212766,
+        "de": 0.02801193994061208,
+        "p2.5": 0.48936170212765956,
+        "p97.5": 0.5696808510638298
+      }
+    }
+  },
+  "comparacion": {
+    "baselines": {
+      "aleatorio": {
+        "roc_auc": {
+          "media": 0.5001686618523723,
+          "p2.5": 0.428182280812291,
+          "p97.5": 0.5386480395482964
+        },
+        "pr_auc": {
+          "media": 0.0223438411588964,
+          "p2.5": 0.0179176047624465,
+          "p97.5": 0.029316285042954
+        },
+        "boyce": {
+          "media": 0.058105472256904,
+          "p2.5": -0.4768407111936301,
+          "p97.5": 0.3061068225785963
+        }
+      },
+      "prior_clase": {
+        "roc_auc": {
+          "media": 0.4886288954587313,
+          "p2.5": 0.4863737701739931,
+          "p97.5": 0.4895233364028498
+        },
+        "pr_auc": {
+          "media": 0.0202671173231141,
+          "p2.5": 0.0201691871338446,
+          "p97.5": 0.0203064962875908
+        },
+        "boyce": {
+          "media": -0.3374630119092434,
+          "p2.5": -0.3374751122304496,
+          "p97.5": -0.3374549450284393
+        }
+      },
+      "heuristica_poblacion": {
+        "roc_auc": {
+          "media": 0.339359278825183,
+          "p2.5": 0.339359278825183,
+          "p97.5": 0.339359278825183
+        },
+        "pr_auc": {
+          "media": 0.0147712290585656,
+          "p2.5": 0.0147712290585656,
+          "p97.5": 0.0147712290585656
+        },
+        "boyce": {
+          "media": -0.842798632322895,
+          "p2.5": -0.8427986323228951,
+          "p97.5": -0.8427986323228951
+        }
+      }
+    },
+    "lightgbm_por_defecto": {
+      "roc_auc": {
+        "media": 0.7181011001793245,
+        "p2.5": 0.706805602675326,
+        "p97.5": 0.7351410362041391
+      },
+      "pr_auc": {
+        "media": 0.0689732721759998,
+        "p2.5": 0.0609373399589125,
+        "p97.5": 0.0797264754435251
+      },
+      "boyce": {
+        "media": 0.6329822860355365,
+        "p2.5": 0.4543014015401254,
+        "p97.5": 0.7122178709897055
+      }
+    },
+    "lightgbm_ajustado_cv_anidada": {
+      "roc_auc": {
+        "media": 0.7034294576649057,
+        "p2.5": 0.6833499733436729,
+        "p97.5": 0.7235076091697765
+      },
+      "pr_auc": {
+        "media": 0.0722158091020092,
+        "p2.5": 0.0612433933756167,
+        "p97.5": 0.0896978817238864
+      },
+      "boyce": {
+        "media": 0.533302645791823,
+        "p2.5": 0.3983764381666495,
+        "p97.5": 0.7140856194604895
+      }
+    },
+    "lectura": "LightGBM no supera a la logística ni con parámetros por defecto ni ajustado; con 47 positivos el límite es la señal, no los hiperparámetros."
+  },
+  "coeficientes_principales": [
+    {
+      "columna": "cat__clase_oportunidad_paradero_transporte_publico",
+      "coeficiente": 2.0293
+    },
+    {
+      "columna": "cat__clase_oportunidad_mercado_municipal_no_confirmado",
+      "coeficiente": -1.6381
+    },
+    {
+      "columna": "num__ghsl_frac_construida_r1000",
+      "coeficiente": 1.5331
+    },
+    {
+      "columna": "num__vias_km_km2_r250",
+      "coeficiente": -1.3525
+    },
+    {
+      "columna": "num__vias_km_km2_r1000",
+      "coeficiente": -1.2213
+    },
+    {
+      "columna": "num__vias_km_km2_r500",
+      "coeficiente": 1.2173
+    },
+    {
+      "columna": "num__poi_n_km2_r1000",
+      "coeficiente": 1.2091
+    },
+    {
+      "columna": "num__ghsl_frac_construida_r500",
+      "coeficiente": -1.004
+    }
+  ],
+  "interpretacion": "Los radios de una misma variable son colineales y sus coeficientes tienen signos opuestos que se compensan: no se interpretan por separado. Las contribuciones se publican por grupo de variables (propension.csv, columnas contrib_*). Para mostrar la propensión, usar el percentil fuera de fold.",
+  "limitaciones": [
+    "47 positivos concentrados en 14 de 40 distritos; 10 son estaciones de un mismo programa municipal (San Isidro; ER08 cae en Surquillo según IDEP).",
+    "OSM mapea de forma desigual los puntos de reciclaje: el fondo contiene positivos no mapeados y las métricas positivos–fondo son cotas inferiores.",
+    "La propensión refleja dónde se decidió instalar en el pasado, no dónde conviene instalar.",
+    "La propensión final de los 47 positivos es dentro de muestra; usar la fuera de fold para evaluar.",
+    "Las variables se reciben congeladas; no se pueden recalcular sin los archivos fuente."
+  ]
+}
